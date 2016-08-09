@@ -87,9 +87,9 @@ int errno;
 
 #define MAXSPEED 23
 bit_rate bitrate_table[MAXSPEED] = {
-  {0      , B0           },
-  {50     , B50           },
-  {75     , B75           },
+  {0      , B0     },
+  {50     , B50    },
+  {75     , B75    },
   {110    , B110   },
   {134    , B134   },
   {150    , B150   },
