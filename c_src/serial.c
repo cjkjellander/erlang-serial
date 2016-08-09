@@ -282,7 +282,6 @@ void tbh_write(int fd, unsigned char buf[], int buffsize)
   /* Second, write original buffer */
   write(fd,buf,buffsize);
 
-  usleep(1000000);
   return;
 }
 
