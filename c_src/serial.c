@@ -266,8 +266,14 @@ void set_tbh_size(unsigned char buf[], int size)
 void tbh_write(int fd, unsigned char buf[], int buffsize)
 {
   char header_buf[TBHSIZE];
+  int i;
 
   Debug1("tbh_write: send message of size %d\r\n", buffsize);
+  Debug("thb_write: message: ");
+  for(i=0; i<buffsize; i++){
+    Debug1(" %x", buf[i]);
+  }
+  Debug("\r\n");
 
   /* First, write two byte header */
   set_tbh_size(header_buf, buffsize);
@@ -276,6 +282,7 @@ void tbh_write(int fd, unsigned char buf[], int buffsize)
   /* Second, write original buffer */
   write(fd,buf,buffsize);
 
+  usleep(1000000);
   return;
 }
 
@@ -499,24 +506,36 @@ int main(int argc, char *argv[])
         if (TtyOpen(ttyfd) &&
             FD_ISSET(ttyfd,&readfds))        /* from serial port */
           {
-            int nr_read;
+            int nr_read, tot_read;
 
             Debug("receiving from TTY\r\n");
 
             FD_CLR(ttyfd,&readfds);
 
-            nr_read = read(ttyfd,buf,MAXLENGTH);
+            tot_read = read(ttyfd,buf,1);
 
-            if (nr_read <= 0)
+            if (tot_read <= 0)
               {
                 fprintf(stderr,"problem reading from tty\n");
                 exit(1);
               }
 
+            while(tot_read <= buf[0])
+              {
+                nr_read = read(ttyfd,&buf[tot_read],buf[0]+1-tot_read);
+
+                if (nr_read <= 0)
+                  {
+                    fprintf(stderr,"problem reading from tty\n");
+                    exit(1);
+                  }
+                tot_read += nr_read;
+              }
+
             if (erlang)
-              tbh_write(stdoutfd,buf,nr_read);
+              tbh_write(stdoutfd,buf,tot_read);
             else
-              write(stdoutfd,buf,nr_read);
+              write(stdoutfd,buf,tot_read);
 
           }
 

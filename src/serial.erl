@@ -56,7 +56,7 @@ process_options(Pid,[Opt|Opts]) ->
 init(Pid) ->
     process_flag(trap_exit,true),
     Port = open_port({spawn,priv_dir()++"/bin/serial -erlang -debug"},
-                     [binary,{packet,2}]),
+                     [binary,{packet,2},{parallelism, true}]),
     loop(Pid,Port).
 
 loop(Pid,Port) ->
